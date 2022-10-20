@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -30,7 +31,7 @@ public class User {
     private Credentials credentials;
 
     @OneToMany(mappedBy = "user")
-    private List<MeteringDevice> meteringDevices;
+    private List<MeteringDevice> meteringDevices = new ArrayList<>();
 
     public void addMeteringDevice(MeteringDevice device) {
         meteringDevices.add(device);
