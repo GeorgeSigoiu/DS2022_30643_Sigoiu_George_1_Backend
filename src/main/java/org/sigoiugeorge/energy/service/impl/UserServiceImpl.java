@@ -17,7 +17,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepo repo;
 
     @Override
-    public User save(@NotNull User entity) {
+    public User create(@NotNull User entity) {
         if (entity.getId() != null) {
             throw new IllegalArgumentException("The user exists in database, he has an id!\n" + entity.toString());
         }
@@ -56,7 +56,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addMeteringDevice(@NotNull User user, MeteringDevice device) {
         user.addMeteringDevice(device);
-        save(user);
+        create(user);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         }
         if (found) {
             user.removeMeteringDevice(index);
-            save(user);
+            create(user);
         }
     }
 
@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removeMeteringDevice(@NotNull User user, MeteringDevice device) {
         user.removeMeteringDevice(device);
-        save(user);
+        create(user);
     }
 
     @Override

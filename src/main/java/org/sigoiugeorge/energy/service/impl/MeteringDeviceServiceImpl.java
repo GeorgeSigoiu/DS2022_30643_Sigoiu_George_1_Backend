@@ -17,7 +17,7 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
     private final MeteringDeviceRepo repo;
 
     @Override
-    public MeteringDevice save(@NotNull MeteringDevice entity) {
+    public MeteringDevice create(@NotNull MeteringDevice entity) {
         if (entity.getId() != null) {
             throw new IllegalArgumentException("The device exists in database, it has an id!\n" + entity.toString());
         }
@@ -61,7 +61,7 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
     @Override
     public void addEnergyConsumption(@NotNull MeteringDevice device, @NotNull EnergyConsumption energyConsumption) {
         device.addEnergyConsumption(energyConsumption);
-        save(device);
+        create(device);
     }
 
     @Override
@@ -84,14 +84,14 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
         }
         if (found) {
             device.removeEnergyConsumption(index);
-            save(device);
+            create(device);
         }
     }
 
     @Override
     public void removeEnergyConsumption(@NotNull MeteringDevice device, @NotNull EnergyConsumption energyConsumption) {
         device.removeEnergyConsumption(energyConsumption);
-        save(device);
+        create(device);
     }
 
     @Override

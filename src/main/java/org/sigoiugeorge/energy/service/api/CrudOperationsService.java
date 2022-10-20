@@ -7,7 +7,7 @@ public interface CrudOperationsService<T> {
      * save the new object in database
      */
     @NotNull
-    T save(@NotNull T entity);
+    T create(@NotNull T entity);
 
     /**
      * remove the object with specified id from database

@@ -14,7 +14,7 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
     private final EnergyConsumptionRepo repo;
 
     @Override
-    public EnergyConsumption save(@NotNull EnergyConsumption entity) {
+    public EnergyConsumption create(@NotNull EnergyConsumption entity) {
         if (entity.getId() != null) {
             throw new IllegalArgumentException("The energy consumption entity exists in database, it has an id!\n" + entity.toString());
         }

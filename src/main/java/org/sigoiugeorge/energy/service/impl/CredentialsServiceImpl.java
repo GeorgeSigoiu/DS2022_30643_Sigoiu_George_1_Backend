@@ -14,7 +14,7 @@ public class CredentialsServiceImpl implements CredentialsService {
     private final CredentialsRepo repo;
 
     @Override
-    public Credentials save(@NotNull Credentials entity) {
+    public Credentials create(@NotNull Credentials entity) {
         if (entity.getId() != null) {
             throw new IllegalArgumentException("The credentials exist in database, they have an id!\n" + entity.toString());
         }
