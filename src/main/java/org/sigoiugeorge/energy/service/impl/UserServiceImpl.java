@@ -2,6 +2,7 @@ package org.sigoiugeorge.energy.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.sigoiugeorge.energy.dao.UserRepo;
 import org.sigoiugeorge.energy.model.Credentials;
 import org.sigoiugeorge.energy.model.MeteringDevice;
@@ -81,6 +82,17 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             throw new IllegalArgumentException("In order to update the user, the ID can not be null!");
         }
         return repo.save(entity);
+    }
+
+    @Override
+    @Nullable
+    public User getUser(String username) {
+        List<User> all = getAll();
+        Optional<User> first = all.stream().filter(u -> u.getCredentials().getUsername().equals(username)).findFirst();
+        if (first.isEmpty()) {
+            return null;
+        }
+        return first.get();
     }
 
     @Override

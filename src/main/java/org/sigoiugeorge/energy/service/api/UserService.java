@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface UserService extends CrudOperationsService<User> {
 
+    User getUser(String username);
+
     void addMeteringDevice(long userId, @NotNull MeteringDevice device);
 
     void addMeteringDevice(User user, @NotNull MeteringDevice device);

@@ -1,11 +1,17 @@
 package org.sigoiugeorge.energy.controller;
 
+import com.auth0.jwt.interfaces.DecodedJWT;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.service.api.UserService;
+import org.sigoiugeorge.energy.security.Jwt;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -15,7 +21,7 @@ public class UserController {
 
     private final UserService service;
 
-    @PostMapping("/add-user")
+    @PostMapping("/add/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User createdUser = service.create(user);
         return ResponseEntity
@@ -24,7 +30,7 @@ public class UserController {
     }
 
     @GetMapping("/get/users")
-    public ResponseEntity<List<User>> listAllUsers(){
+    public ResponseEntity<List<User>> listAllUsers() {
         List<User> all = service.getAll();
         return ResponseEntity.ok().body(all);
     }
