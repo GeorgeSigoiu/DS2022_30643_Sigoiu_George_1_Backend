@@ -3,25 +3,55 @@ package org.sigoiugeorge.energy.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.sigoiugeorge.energy.dao.UserRepo;
+import org.sigoiugeorge.energy.model.Credentials;
 import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.service.api.UserService;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService, UserDetailsService {
 
     private final UserRepo repo;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public User create(@NotNull User entity) {
-        if (entity.getId() != null) {
-            throw new IllegalArgumentException("The user exists in database, he has an id!\n" + entity.toString());
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        System.out.println("load user by username: " + username);
+        List<User> allUsers = repo.findAll();
+        Optional<User> firstUser = allUsers.stream().filter((u) -> u.getCredentials().getUsername().equals(username)).findFirst();
+        if (firstUser.isEmpty()) {
+            throw new UsernameNotFoundException("Username not found");
         }
-        return repo.save(entity);
+        User user = firstUser.get();
+        System.out.println("user found: " + user);
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(user.getRole()));
+        String encode = passwordEncoder.encode(user.getCredentials().getPassword());
+        return new org.springframework.security.core.userdetails.User(user.getCredentials().getUsername(), encode, authorities);
+    }
+
+    @Override
+    public User create(@NotNull User user) {
+        if (user.getId() != null) {
+            throw new IllegalArgumentException("The user exists in database, he has an id!\n" + user.toString());
+        }
+        Credentials credentials = user.getCredentials();
+        credentials.setPassword(passwordEncoder.encode(credentials.getPassword()));
+        System.out.println(credentials.getPassword());
+        user.setCredentials(credentials);
+        return repo.save(user);
     }
 
     @Override
@@ -44,6 +74,7 @@ public class UserServiceImpl implements UserService {
         return repo.findAll();
     }
 
+    //maybe this needs also password encode
     @Override
     public User update(@NotNull User entity) {
         if (entity.getId() == null) {
@@ -111,4 +142,5 @@ public class UserServiceImpl implements UserService {
     public List<MeteringDevice> getAllMeteringDevices(@NotNull User user) {
         return user.getMeteringDevices();
     }
+
 }
