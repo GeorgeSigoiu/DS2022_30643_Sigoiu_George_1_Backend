@@ -29,4 +29,28 @@ public class UserController {
         return ResponseEntity.ok().body(all);
     }
 
+    @GetMapping("/token/refresh")
+    public void refreshToken(@NotNull HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String authorizationHeader = request.getHeader("Authorization");
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            try {
+                DecodedJWT decodedJWT = Jwt.getDecodedJWT(authorizationHeader);
+                String username = decodedJWT.getSubject();
+                User user = service.getUser(username);
+
+                String access_token = Jwt.createAccessToken(request, user.getCredentials().getUsername(), List.of(user.getRole()));
+                String refresh_token = Jwt.createRefreshToken(request, user.getCredentials().getUsername());
+
+                response.setHeader("access_token", access_token);
+                response.setHeader("refresh_token", refresh_token);
+
+            } catch (Exception exception) {
+                Jwt.handleExceptionInResponse(response, exception);
+            }
+        } else {
+            throw new RuntimeException("Refresh token is missing!");
+        }
+    }
+
+
 }

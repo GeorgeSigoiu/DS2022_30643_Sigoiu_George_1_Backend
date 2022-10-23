@@ -37,9 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        for links that we dont need auth, not secured
 //        http.authorizeRequests().antMatchers("/get/users").permitAll();
 
-        http.authorizeRequests().antMatchers("/login").permitAll();
+        http.authorizeRequests().antMatchers("/login","/token/refresh").permitAll();
 
-        http.authorizeRequests().antMatchers(GET,"/get/users").hasAnyAuthority("administrator");
+        http.authorizeRequests().antMatchers(GET,"/get/users").hasAnyAuthority("admin");
 
         http.authorizeRequests().anyRequest().authenticated();
 //        http.authorizeRequests().anyRequest().permitAll();
