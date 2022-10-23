@@ -3,12 +3,10 @@ package org.sigoiugeorge.energy.controller;
 import lombok.RequiredArgsConstructor;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.service.api.UserService;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -23,6 +21,12 @@ public class UserController {
         return ResponseEntity
                 .ok()
                 .body(createdUser);
+    }
+
+    @GetMapping("/get/users")
+    public ResponseEntity<List<User>> listAllUsers(){
+        List<User> all = service.getAll();
+        return ResponseEntity.ok().body(all);
     }
 
 }
