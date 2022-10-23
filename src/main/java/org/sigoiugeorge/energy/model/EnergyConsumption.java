@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class EnergyConsumption {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
