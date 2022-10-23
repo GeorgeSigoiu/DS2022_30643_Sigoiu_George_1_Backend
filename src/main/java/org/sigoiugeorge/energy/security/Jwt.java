@@ -21,6 +21,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class Jwt {
 
+    private static final int ACCESS_TOKEN_EXPIRATION_TIME_MIN = 10 * 60 * 1000;
+    private static final int REFRESH_TOKEN_EXPIRATION_TIME_MIN = 30 * 60 * 1000;
+
     @Contract(" -> new")
     public static @NotNull Algorithm getCreationTokenAlgorithm() {
         return Algorithm.HMAC256("secret".getBytes());
@@ -38,16 +41,17 @@ public class Jwt {
     public static String createAccessToken(@NotNull HttpServletRequest request, @NotNull String username, @NotNull List<String> roles) {
         return JWT.create()
                 .withSubject(username)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + ACCESS_TOKEN_EXPIRATION_TIME_MIN))
                 .withIssuer(request.getRequestURL().toString())
                 .withClaim("roles", roles)
                 .sign(getCreationTokenAlgorithm());
     }
+
     @NotNull
-    public static String createRefreshToken(@NotNull HttpServletRequest request,@NotNull String username) {
+    public static String createRefreshToken(@NotNull HttpServletRequest request, @NotNull String username) {
         return JWT.create()
                 .withSubject(username)
-                .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
+                .withExpiresAt(new Date(System.currentTimeMillis() + REFRESH_TOKEN_EXPIRATION_TIME_MIN))
                 .withIssuer(request.getRequestURL().toString())
                 .sign(getCreationTokenAlgorithm());
     }
