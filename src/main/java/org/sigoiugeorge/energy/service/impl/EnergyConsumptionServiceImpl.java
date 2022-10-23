@@ -7,6 +7,8 @@ import org.sigoiugeorge.energy.model.EnergyConsumption;
 import org.sigoiugeorge.energy.service.api.EnergyConsumptionService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
@@ -34,6 +36,11 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
     @Override
     public EnergyConsumption get(long id) {
         return repo.getReferenceById(id);
+    }
+
+    @Override
+    public List<EnergyConsumption> getAll() {
+        return repo.findAll();
     }
 
     @Override

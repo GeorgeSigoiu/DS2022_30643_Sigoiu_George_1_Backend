@@ -40,6 +40,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getAll() {
+        return repo.findAll();
+    }
+
+    @Override
     public User update(@NotNull User entity) {
         if (entity.getId() == null) {
             throw new IllegalArgumentException("In order to update the user, the ID can not be null!");

@@ -7,6 +7,8 @@ import org.sigoiugeorge.energy.model.Credentials;
 import org.sigoiugeorge.energy.service.api.CredentialsService;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class CredentialsServiceImpl implements CredentialsService {
@@ -34,6 +36,11 @@ public class CredentialsServiceImpl implements CredentialsService {
     @Override
     public Credentials get(long id) {
         return repo.getReferenceById(id);
+    }
+
+    @Override
+    public List<Credentials> getAll() {
+        return repo.findAll();
     }
 
     @Override

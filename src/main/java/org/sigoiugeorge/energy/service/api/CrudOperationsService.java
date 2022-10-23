@@ -2,6 +2,8 @@ package org.sigoiugeorge.energy.service.api;
 
 import com.sun.istack.NotNull;
 
+import java.util.List;
+
 public interface CrudOperationsService<T> {
     /**
      * save the new object in database
@@ -24,6 +26,12 @@ public interface CrudOperationsService<T> {
      */
     @NotNull
     T get(long id);
+
+    /**
+     * get all the instances of the objects
+     * @return List of objects
+     */
+    List<T> getAll();
 
     /**
      * update the values of the object.

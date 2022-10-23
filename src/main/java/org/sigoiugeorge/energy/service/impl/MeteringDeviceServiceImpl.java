@@ -40,6 +40,11 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
     }
 
     @Override
+    public List<MeteringDevice> getAll() {
+        return repo.findAll();
+    }
+
+    @Override
     public MeteringDevice update(@NotNull MeteringDevice entity) {
         if (entity.getId() == null) {
             throw new IllegalArgumentException("The device can not be updated because it does not have an id!");
