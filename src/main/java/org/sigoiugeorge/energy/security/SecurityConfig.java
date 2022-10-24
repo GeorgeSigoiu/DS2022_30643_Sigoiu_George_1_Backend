@@ -1,7 +1,6 @@
 package org.sigoiugeorge.energy.security;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,17 +30,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    protected void configure(@NotNull AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userDetailsService).passwordEncoder(bCryptPasswordEncoder);
     }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         secureConfigure(http);
-//        configure_permitall(http);
+//        unsecureConfigure(http);
     }
 
-    private void configure_permitall(@NotNull HttpSecurity http) throws Exception {
+    private void unsecureConfigure(@NotNull HttpSecurity http) throws Exception {
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
         http.csrf().disable();
         http.cors().configurationSource(request -> getCorsConfiguration());
@@ -51,48 +50,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests().anyRequest().permitAll();
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-//        http.addFilterBefore(customCorsFilter(), SessionManagementFilter.class);
     }
 
     private void secureConfigure(@NotNull HttpSecurity http) throws Exception {
         CustomAuthenticationFilter customAuthenticationFilter = new CustomAuthenticationFilter(authenticationManagerBean());
-//        customAuthenticationFilter.setFilterProcessesUrl("/api/login");
         http.csrf().disable();
         http.cors().configurationSource(request -> getCorsConfiguration());
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-//        for links that we dont need auth, not secured
-//        http.authorizeRequests().antMatchers("/get/users").permitAll();
-
         http.authorizeRequests().antMatchers("/login", "/token/refresh").permitAll();
 
-        String[] clientAllowedLinks = new String[]{
-
-        };
-        http.authorizeRequests().antMatchers(GET, adminAllowedGetLinks()).hasAnyAuthority("admin");
-        http.authorizeRequests().antMatchers(POST, adminAllowedPostLinks()).hasAnyAuthority("admin");
-        http.authorizeRequests().antMatchers(GET, clientAllowedLinks).hasAnyAuthority("client");
+        http.authorizeRequests().antMatchers(GET, SecurityUtils.adminAllowedGetLinks()).hasAnyAuthority("admin");
+        http.authorizeRequests().antMatchers(POST, SecurityUtils.adminAllowedPostLinks()).hasAnyAuthority("admin");
+        http.authorizeRequests().antMatchers(GET, SecurityUtils.clientAllowedGetLinks()).hasAnyAuthority("client");
+        http.authorizeRequests().antMatchers(GET, SecurityUtils.clientAllowedPostLinks()).hasAnyAuthority("client");
 
         http.authorizeRequests().anyRequest().authenticated();
-//        http.authorizeRequests().anyRequest().permitAll();
-
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
-    }
-
-    @Contract(value = " -> new", pure = true)
-    private String @NotNull [] adminAllowedGetLinks() {
-        return new String[]{
-                "/get/users",
-                "/get/credentials",
-        };
-    }
-
-    @Contract(value = " -> new", pure = true)
-    private String @NotNull [] adminAllowedPostLinks() {
-        return new String[]{
-                "/add/credentials",
-                "/add/user",
-        };
     }
 
     @Bean
