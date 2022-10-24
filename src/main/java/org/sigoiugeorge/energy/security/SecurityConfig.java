@@ -63,15 +63,36 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 //        for links that we dont need auth, not secured
 //        http.authorizeRequests().antMatchers("/get/users").permitAll();
 
-        http.authorizeRequests().antMatchers("/login","/token/refresh").permitAll();
+        http.authorizeRequests().antMatchers("/login", "/token/refresh").permitAll();
 
-        http.authorizeRequests().antMatchers(GET,"/get/users").hasAnyAuthority("admin");
+        String[] clientAllowedLinks = new String[]{
+
+        };
+        http.authorizeRequests().antMatchers(GET, adminAllowedGetLinks()).hasAnyAuthority("admin");
+        http.authorizeRequests().antMatchers(POST, adminAllowedPostLinks()).hasAnyAuthority("admin");
+        http.authorizeRequests().antMatchers(GET, clientAllowedLinks).hasAnyAuthority("client");
 
         http.authorizeRequests().anyRequest().authenticated();
 //        http.authorizeRequests().anyRequest().permitAll();
 
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
+    }
+
+    @Contract(value = " -> new", pure = true)
+    private String @NotNull [] adminAllowedGetLinks() {
+        return new String[]{
+                "/get/users",
+                "/get/credentials",
+        };
+    }
+
+    @Contract(value = " -> new", pure = true)
+    private String @NotNull [] adminAllowedPostLinks() {
+        return new String[]{
+                "/add/credentials",
+                "/add/user",
+        };
     }
 
     @Bean
