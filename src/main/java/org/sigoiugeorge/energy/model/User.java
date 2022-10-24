@@ -1,5 +1,7 @@
 package org.sigoiugeorge.energy.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,11 +29,13 @@ public class User {
     @Column(name = "role")
     private String role;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "id_credentials", referencedColumnName = "id")
     private Credentials credentials;
 
-    @OneToMany(mappedBy = "user")
+    @JsonProperty("devices")
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     private List<MeteringDevice> meteringDevices = new ArrayList<>();
 
     public void addMeteringDevice(MeteringDevice device) {
