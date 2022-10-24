@@ -1,5 +1,6 @@
 package org.sigoiugeorge.energy.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,7 +15,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -44,5 +47,10 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
 
         response.setHeader("access_token", access_token);
         response.setHeader("refresh_token", refresh_token);
+
+        Map<String, String> headers = new HashMap<>();
+        headers.put("access_token", access_token);
+        headers.put("refresh_token", refresh_token);
+        new ObjectMapper().writeValue(response.getOutputStream(), headers);
     }
 }
