@@ -15,11 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 
-import java.util.Arrays;
 import java.util.List;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.*;
 
 @Configuration
 @EnableWebSecurity
@@ -61,8 +59,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http.authorizeRequests().antMatchers(GET, SecurityUtils.adminAllowedGetLinks()).hasAnyAuthority("admin");
         http.authorizeRequests().antMatchers(POST, SecurityUtils.adminAllowedPostLinks()).hasAnyAuthority("admin");
+        http.authorizeRequests().antMatchers(DELETE, SecurityUtils.adminAllowedDeleteLinks()).hasAnyAuthority("admin");
+        http.authorizeRequests().antMatchers(PUT, SecurityUtils.adminAllowedPutLinks()).hasAnyAuthority("admin");
+
         http.authorizeRequests().antMatchers(GET, SecurityUtils.clientAllowedGetLinks()).hasAnyAuthority("client");
-        http.authorizeRequests().antMatchers(GET, SecurityUtils.clientAllowedPostLinks()).hasAnyAuthority("client");
+        http.authorizeRequests().antMatchers(POST, SecurityUtils.clientAllowedPostLinks()).hasAnyAuthority("client");
 
         http.authorizeRequests().anyRequest().authenticated();
         http.addFilter(customAuthenticationFilter);
