@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User get(long id) {
-        return repo.getReferenceById(id);
+        return repo.findById(id).get();
     }
 
     @Override
