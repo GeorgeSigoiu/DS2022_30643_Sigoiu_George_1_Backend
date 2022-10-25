@@ -29,8 +29,7 @@ public class User {
     @Column(name = "role")
     private String role;
 
-    @JsonIgnore
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE, fetch = FetchType.EAGER)
     @JoinColumn(name = "id_credentials", referencedColumnName = "id")
     private Credentials credentials;
 
