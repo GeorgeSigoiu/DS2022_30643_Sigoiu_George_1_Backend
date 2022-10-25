@@ -35,7 +35,7 @@ public class CredentialsServiceImpl implements CredentialsService {
 
     @Override
     public Credentials get(long id) {
-        return repo.getReferenceById(id);
+        return repo.findById(id).get();
     }
 
     @Override

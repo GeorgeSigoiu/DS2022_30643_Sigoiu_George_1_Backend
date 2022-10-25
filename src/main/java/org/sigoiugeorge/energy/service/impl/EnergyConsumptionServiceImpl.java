@@ -35,7 +35,7 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
 
     @Override
     public EnergyConsumption get(long id) {
-        return repo.getReferenceById(id);
+        return repo.findById(id).get();
     }
 
     @Override

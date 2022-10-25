@@ -36,7 +36,7 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
 
     @Override
     public MeteringDevice get(long id) {
-        return repo.getReferenceById(id);
+        return repo.findById(id).get();
     }
 
     @Override
