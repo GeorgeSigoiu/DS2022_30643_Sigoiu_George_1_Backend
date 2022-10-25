@@ -25,4 +25,15 @@ public class CredentialsController {
         Credentials credentials1 = service.create(credentials);
         return ResponseEntity.ok().body(credentials1);
     }
+
+    @DeleteMapping("/delete/credentials-id={credentialsId}")
+    public void deleteCredentials(@PathVariable Long credentialsId) {
+        service.remove(credentialsId);
+    }
+
+    @PutMapping("/update/credentials-id={credentialsId}")
+    public ResponseEntity<Credentials> updateCredentials(@RequestBody Credentials credentials, @PathVariable Long credentialsId){
+        Credentials update = service.update(credentials);
+        return ResponseEntity.ok().body(update);
+    }
 }
