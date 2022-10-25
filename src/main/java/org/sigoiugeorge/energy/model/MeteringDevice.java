@@ -44,7 +44,7 @@ public class MeteringDevice {
     }
 
     public List<EnergyConsumption> getEnergyConsumption() {
-        return List.copyOf(energyConsumption);
+        return energyConsumption;
     }
 
     public void removeEnergyConsumption(int index) {

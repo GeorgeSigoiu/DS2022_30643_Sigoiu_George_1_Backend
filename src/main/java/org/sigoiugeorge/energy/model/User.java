@@ -43,7 +43,7 @@ public class User {
     }
 
     public List<MeteringDevice> getMeteringDevices() {
-        return List.copyOf(meteringDevices);
+        return meteringDevices;
     }
 
     public void removeMeteringDevice(int index) {
