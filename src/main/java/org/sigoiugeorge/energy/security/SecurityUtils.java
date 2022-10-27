@@ -10,7 +10,9 @@ public class SecurityUtils {
         return new String[]{
                 "/get/users",
                 "/get/credentials",
-                "/get/credentials-id/user-id={userId}"
+                "/get/credentials-id/user-id={userId}",
+                "/get/devices",
+                "/get/devices/no-owner",
         };
     }
 
@@ -19,6 +21,25 @@ public class SecurityUtils {
         return new String[]{
                 "/add/credentials",
                 "/add/user",
+                "/add/device",
+        };
+    }
+
+    @Contract(pure = true)
+    public static String @Nullable [] adminAllowedDeleteLinks() {
+        return new String[]{
+                "/delete/user-id={userId}",
+                "/delete/credentials-id={credentialsId}",
+                "/delete/device-id={deviceId}",
+        };
+    }
+
+    @Contract(pure = true)
+    public static String @Nullable [] adminAllowedPutLinks() {
+        return new String[]{
+                "/update/user-id={userId}",
+                "/update/credentials-id={credentialsId}",
+                "/update/device-id={deviceId}",
         };
     }
 
@@ -33,22 +54,6 @@ public class SecurityUtils {
     public static String @NotNull [] clientAllowedPostLinks() {
         return new String[]{
 
-        };
-    }
-
-    @Contract(pure = true)
-    public static String @Nullable [] adminAllowedDeleteLinks() {
-        return new String[]{
-                "/delete/user-id={userId}",
-                "/delete/credentials-id={credentialsId}"
-        };
-    }
-
-    @Contract(pure = true)
-    public static String @Nullable [] adminAllowedPutLinks() {
-        return new String[]{
-                "/update/user-id={userId}",
-                "/update/credentials-id={credentialsId}",
         };
     }
 }
