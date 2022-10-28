@@ -1,6 +1,7 @@
 package org.sigoiugeorge.energy.controller;
 
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.sigoiugeorge.energy.model.Credentials;
@@ -14,44 +15,52 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
 
     @PostMapping("/add/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
-        User createdUser = service.create(user);
+        User createdUser = userService.create(user);
         return ResponseEntity
                 .ok()
                 .body(createdUser);
     }
 
+    @GetMapping("/get/user-id={userId}")
+    public ResponseEntity<User> getUser(@PathVariable Long userId) {
+        User user = userService.get(userId);
+        return ResponseEntity.ok().body(user);
+    }
+
     @GetMapping("/get/users")
     public ResponseEntity<List<User>> listAllUsers() {
-        List<User> all = service.getAll();
+        List<User> all = userService.getAll();
         return ResponseEntity.ok().body(all);
     }
 
     @GetMapping("/get/credentials-id/user-id={userId}")
     public ResponseEntity<Long> getUserCredentialsId(@PathVariable Long userId) {
-        User user = service.get(userId);
+        User user = userService.get(userId);
         Long id = user.getCredentials().getId();
         return ResponseEntity.ok().body(id);
     }
 
     @DeleteMapping("/delete/user-id={userId}")
     public void deleteUser(@PathVariable Long userId) {
-        service.remove(userId);
+        userService.remove(userId);
     }
 
     @PutMapping("/update/user-id={userId}")
     public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable Long userId) {
-        User theUser = service.get(userId);
+        User theUser = userService.get(userId);
         System.out.println("update user: " + theUser);
         System.out.println("with: " + user);
         String name = user.getName();
@@ -71,7 +80,7 @@ public class UserController {
             theUser.setMeteringDevices(devices);
         }
         System.out.println("the user: " + theUser);
-        User update = service.update(theUser);
+        User update = userService.update(theUser);
         return ResponseEntity.ok().body(update);
 //        return ResponseEntity.ok().build();
     }
@@ -83,7 +92,7 @@ public class UserController {
             try {
                 DecodedJWT decodedJWT = Jwt.getDecodedJWT(authorizationHeader);
                 String username = decodedJWT.getSubject();
-                User user = service.getUser(username);
+                User user = userService.getUser(username);
 
                 String access_token = Jwt.createAccessToken(request, user.getCredentials().getUsername(), List.of(user.getRole()));
                 String refresh_token = Jwt.createRefreshToken(request, user.getCredentials().getUsername());
@@ -91,6 +100,10 @@ public class UserController {
                 response.setHeader("access_token", access_token);
                 response.setHeader("refresh_token", refresh_token);
 
+                Map<String, String> headers = new HashMap<>();
+                headers.put("access_token", access_token);
+                headers.put("refresh_token", refresh_token);
+                new ObjectMapper().writeValue(response.getOutputStream(), headers);
             } catch (Exception exception) {
                 Jwt.handleExceptionInResponse(response, exception);
             }
