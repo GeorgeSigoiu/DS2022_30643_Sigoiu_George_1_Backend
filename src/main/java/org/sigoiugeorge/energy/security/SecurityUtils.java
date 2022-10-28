@@ -13,6 +13,7 @@ public class SecurityUtils {
                 "/get/credentials-id/user-id={userId}",
                 "/get/devices",
                 "/get/devices/no-owner",
+                "/get/user-id={userId}",
         };
     }
 
@@ -40,6 +41,8 @@ public class SecurityUtils {
                 "/update/user-id={userId}",
                 "/update/credentials-id={credentialsId}",
                 "/update/device-id={deviceId}",
+                "/add/device={deviceId}-to-user={userId}",
+                "/update/devices/to-user={userId}",
         };
     }
 
