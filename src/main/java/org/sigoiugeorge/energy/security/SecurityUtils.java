@@ -59,4 +59,11 @@ public class SecurityUtils {
 
         };
     }
+
+    public static String[] commonAllowedGetLinks() {
+        return new String[]{
+                "/get/devices-for-user/user-id={userId}",
+                "/get/user-username={username}",
+        };
+    }
 }
