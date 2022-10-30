@@ -40,7 +40,6 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     protected void successfulAuthentication(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, FilterChain chain, @NotNull Authentication authentication) throws IOException, ServletException {
         User user = (User) authentication.getPrincipal();
         List<String> collect = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        Jwt.createAccessToken(request, user.getUsername(), collect);
 
         String access_token = Jwt.createAccessToken(request, user.getUsername(), collect);
         String refresh_token = Jwt.createRefreshToken(request, user.getUsername());
@@ -51,6 +50,7 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         Map<String, String> headers = new HashMap<>();
         headers.put("access_token", access_token);
         headers.put("refresh_token", refresh_token);
+        headers.put("username", user.getUsername());
         new ObjectMapper().writeValue(response.getOutputStream(), headers);
     }
 }
