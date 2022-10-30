@@ -8,6 +8,7 @@ import org.sigoiugeorge.energy.model.Credentials;
 import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.security.Jwt;
+import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
 import org.sigoiugeorge.energy.service.api.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final MeteringDeviceService deviceService;
 
     @PostMapping("/add/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
@@ -37,6 +39,12 @@ public class UserController {
     @GetMapping("/get/user-id={userId}")
     public ResponseEntity<User> getUser(@PathVariable Long userId) {
         User user = userService.get(userId);
+        return ResponseEntity.ok().body(user);
+    }
+
+    @GetMapping("/get/user-username={username}")
+    public ResponseEntity<User> getUserByUsername(@PathVariable String username) {
+        User user = userService.getUser(username);
         return ResponseEntity.ok().body(user);
     }
 
@@ -53,8 +61,26 @@ public class UserController {
         return ResponseEntity.ok().body(id);
     }
 
+    @GetMapping("/get/devices-for-user/user-id={userId}")
+    public ResponseEntity<List<MeteringDevice>> getDevicesFromUser(@PathVariable Long userId) {
+        User user = userService.get(userId);
+        List<MeteringDevice> devices = user.getMeteringDevices();
+        return ResponseEntity.ok().body(devices);
+    }
+
     @DeleteMapping("/delete/user-id={userId}")
     public void deleteUser(@PathVariable Long userId) {
+        List<MeteringDevice> devices = deviceService.getAll();
+        for (MeteringDevice device : devices) {
+            User user = device.getUser();
+            if (user == null) {
+                continue;
+            }
+            if (user.getId().equals(userId)) {
+                device.setUser(null);
+                deviceService.update(device);
+            }
+        }
         userService.remove(userId);
     }
 
@@ -103,6 +129,7 @@ public class UserController {
                 Map<String, String> headers = new HashMap<>();
                 headers.put("access_token", access_token);
                 headers.put("refresh_token", refresh_token);
+                headers.put("username", username);
                 new ObjectMapper().writeValue(response.getOutputStream(), headers);
             } catch (Exception exception) {
                 Jwt.handleExceptionInResponse(response, exception);
