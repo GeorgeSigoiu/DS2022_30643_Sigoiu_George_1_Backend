@@ -55,15 +55,15 @@ public class MeteringDevice {
         energyConsumption.remove(en);
     }
 
-    @Override
-    public String toString() {
-        return "MeteringDevice{" +
-                "id=" + id +
-                ", description='" + description + '\'' +
-                ", address='" + address + '\'' +
-                ", maxHourlyEnergyConsumption=" + maxHourlyEnergyConsumption +
-                ", user=" + user +
-                ", energyConsumption=" + energyConsumption +
-                '}';
-    }
+//    @Override
+//    public String toString() {
+//        return "MeteringDevice{" +
+//                "id=" + id +
+//                ", description='" + description + '\'' +
+//                ", address='" + address + '\'' +
+//                ", maxHourlyEnergyConsumption=" + maxHourlyEnergyConsumption +
+//                ", user=" + user +
+//                ", energyConsumption=" + energyConsumption +
+//                '}';
+//    }
 }
