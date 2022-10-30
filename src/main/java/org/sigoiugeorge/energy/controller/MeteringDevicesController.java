@@ -26,11 +26,14 @@ public class MeteringDevicesController {
     }
 
     @PutMapping("/add/device={deviceId}-to-user={userId}")
-    public void addDeviceToUser(@PathVariable Long deviceId, @PathVariable Long userId) {
+    public ResponseEntity<User> addDeviceToUser(@PathVariable Long deviceId, @PathVariable Long userId) {
         MeteringDevice device = deviceService.get(deviceId);
         User user = userService.get(userId);
         device.setUser(user);
         deviceService.update(device);
+        //because i need the device list updated
+        user.addMeteringDevice(device);
+        return ResponseEntity.ok().body(user);
     }
 
     @PutMapping("/update/devices/to-user={userId}")
