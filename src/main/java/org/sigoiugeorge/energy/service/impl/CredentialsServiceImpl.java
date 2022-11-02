@@ -8,6 +8,7 @@ import org.sigoiugeorge.energy.service.api.CredentialsService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -49,5 +50,11 @@ public class CredentialsServiceImpl implements CredentialsService {
             throw new IllegalArgumentException("In order to update the credentials, the ID can not be null!");
         }
         return repo.save(entity);
+    }
+
+    @Override
+    public Boolean usernameIsUnique(String username) {
+        Optional<Credentials> byUsername = repo.findByUsername(username);
+        return byUsername.isEmpty();
     }
 }

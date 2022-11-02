@@ -9,6 +9,7 @@ import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -110,4 +111,11 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
         MeteringDevice device = get(deviceId);
         removeEnergyConsumption(device, energyConsumption);
     }
+
+    @Override
+    public Boolean addressIsUnique(String address) {
+        Optional<MeteringDevice> byAddress = repo.findByAddress(address);
+        return byAddress.isEmpty();
+    }
+
 }

@@ -25,4 +25,5 @@ public interface MeteringDeviceService extends CrudOperationsService<MeteringDev
 
     void removeEnergyConsumption(long deviceId, @NotNull EnergyConsumption energyConsumption);
 
+    Boolean addressIsUnique(String address);
 }
