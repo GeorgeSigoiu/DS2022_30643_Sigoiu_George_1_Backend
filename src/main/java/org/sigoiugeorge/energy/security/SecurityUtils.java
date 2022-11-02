@@ -41,7 +41,6 @@ public class SecurityUtils {
     public static String @Nullable [] adminAllowedPutLinks() {
         return new String[]{
                 "/update/user-id={userId}",
-                "/update/credentials-id={credentialsId}",
                 "/update/device-id={deviceId}",
                 "/add/device={deviceId}-to-user={userId}",
                 "/update/devices/to-user={userId}",
@@ -66,6 +65,12 @@ public class SecurityUtils {
         return new String[]{
                 "/get/devices-for-user/user-id={userId}",
                 "/get/user-username={username}",
+        };
+    }
+
+    public static String[] commonAllowedPostLinks() {
+        return new String[]{
+                "/update/credentials-id={credentialsId}",
         };
     }
 }
