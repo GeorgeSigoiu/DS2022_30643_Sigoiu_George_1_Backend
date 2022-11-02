@@ -32,8 +32,13 @@ public class CredentialsController {
     }
 
     @PutMapping("/update/credentials-id={credentialsId}")
-    public ResponseEntity<Credentials> updateCredentials(@RequestBody Credentials credentials, @PathVariable Long credentialsId){
+    public ResponseEntity<Credentials> updateCredentials(@RequestBody Credentials credentials, @PathVariable Long credentialsId) {
         Credentials update = service.update(credentials);
         return ResponseEntity.ok().body(update);
+    }
+
+    @GetMapping("/verify/unique/username={username}")
+    public ResponseEntity<Boolean> verifyUsernameIsUnique(@PathVariable String username) {
+        return ResponseEntity.ok().body(service.usernameIsUnique(username));
     }
 }

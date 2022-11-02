@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,9 +42,9 @@ public class MeteringDevicesController {
         System.out.println("The input");
         System.out.print("list: ");
         for (Long devicesId : devicesIds) {
-            System.out.print(devicesId+", ");
+            System.out.print(devicesId + ", ");
         }
-        System.out.println("user id: "+userId);
+        System.out.println("user id: " + userId);
         User user;
         if (userId == null || userId <= 0) {
             user = null;
@@ -91,6 +92,12 @@ public class MeteringDevicesController {
     public ResponseEntity<List<MeteringDevice>> getDevicesWithoutOwner() {
         List<MeteringDevice> collect = deviceService.getAll().stream().filter((d) -> d.getUser() == null).collect(Collectors.toList());
         return ResponseEntity.ok().body(collect);
+    }
+
+    @PostMapping("/verify/unique/device-address")
+    public ResponseEntity<Boolean> verifyIfAddressIsUnique(@RequestBody Map<String,String> body) {
+        System.out.println(body.get("address"));
+        return ResponseEntity.ok().body(deviceService.addressIsUnique(body.get("address")));
     }
 }
 

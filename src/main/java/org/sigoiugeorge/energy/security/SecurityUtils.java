@@ -14,6 +14,7 @@ public class SecurityUtils {
                 "/get/devices",
                 "/get/devices/no-owner",
                 "/get/user-id={userId}",
+                "/verify/unique/username",
         };
     }
 
@@ -23,6 +24,7 @@ public class SecurityUtils {
                 "/add/credentials",
                 "/add/user",
                 "/add/device",
+                "/verify/unique/device-address",
         };
     }
 
