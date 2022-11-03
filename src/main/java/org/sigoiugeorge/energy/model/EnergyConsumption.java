@@ -38,7 +38,7 @@ public class EnergyConsumption {
                 "id=" + id +
                 ", timestamp=" + timestamp +
                 ", energyConsumption=" + energyConsumption +
-                ", meteringDevice=" + meteringDevice +
+//                ", meteringDevice=" + meteringDevice +
                 '}';
     }
 }

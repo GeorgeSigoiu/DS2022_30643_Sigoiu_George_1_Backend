@@ -29,14 +29,12 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        System.out.println("load user by username: " + username);
         List<User> allUsers = repo.findAll();
         Optional<User> firstUser = allUsers.stream().filter((u) -> u.getCredentials().getUsername().equals(username)).findFirst();
         if (firstUser.isEmpty()) {
             throw new UsernameNotFoundException("Username not found");
         }
         User user = firstUser.get();
-        System.out.println("user found: " + user);
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(user.getRole()));
         String encode = passwordEncoder.encode(user.getCredentials().getPassword());
@@ -50,7 +48,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
         Credentials credentials = user.getCredentials();
         credentials.setPassword(passwordEncoder.encode(credentials.getPassword()));
-        System.out.println(credentials.getPassword());
         user.setCredentials(credentials);
         return repo.save(user);
     }

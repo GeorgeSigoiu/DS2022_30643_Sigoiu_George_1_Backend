@@ -1,6 +1,8 @@
 package org.sigoiugeorge.energy.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.sigoiugeorge.energy.model.EnergyConsumption;
 import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
@@ -8,6 +10,9 @@ import org.sigoiugeorge.energy.service.api.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,12 +44,6 @@ public class MeteringDevicesController {
 
     @PutMapping("/update/devices/to-user={userId}")
     public void updateTheUserForDevice(@RequestBody List<Long> devicesIds, @PathVariable Long userId) {
-        System.out.println("The input");
-        System.out.print("list: ");
-        for (Long devicesId : devicesIds) {
-            System.out.print(devicesId + ", ");
-        }
-        System.out.println("user id: " + userId);
         User user;
         if (userId == null || userId <= 0) {
             user = null;
@@ -95,9 +94,39 @@ public class MeteringDevicesController {
     }
 
     @PostMapping("/verify/unique/device-address")
-    public ResponseEntity<Boolean> verifyIfAddressIsUnique(@RequestBody Map<String,String> body) {
-        System.out.println(body.get("address"));
+    public ResponseEntity<Boolean> verifyIfAddressIsUnique(@RequestBody @NotNull Map<String, String> body) {
         return ResponseEntity.ok().body(deviceService.addressIsUnique(body.get("address")));
+    }
+
+    @GetMapping("/get/consumption/for-date={date}/device-id={deviceId}")
+    public ResponseEntity<Map<Integer, Integer>> getDailyConsumption(@PathVariable String date, @PathVariable Long deviceId) {
+        int endIndex = date.lastIndexOf(".");
+        if (endIndex == -1) {
+            endIndex = date.length();
+        }
+        date = date.substring(0, endIndex);
+        LocalDateTime parsedDate = LocalDateTime.parse(date);
+
+        Map<Integer, Integer> resultMap = new HashMap<>();
+        for (int i = 0; i <= 23; i++) {
+            resultMap.put(i, 0);
+        }
+
+        MeteringDevice device = deviceService.get(deviceId);
+        List<EnergyConsumption> consumption = device.getEnergyConsumption();
+        List<EnergyConsumption> collect = consumption.stream().filter(el -> el.getTimestamp().toLocalDate().equals(parsedDate.toLocalDate())).toList();
+
+        //todo 13:45 -> 13, but it should be 14
+        for (EnergyConsumption elem : collect) {
+            Integer value = elem.getEnergyConsumption();
+            LocalTime time = elem.getTimestamp().toLocalTime();
+            int hour = time.getHour();
+            Integer integer = resultMap.get(hour);
+            Integer newVal = integer + value;
+            resultMap.put(hour, newVal);
+        }
+
+        return ResponseEntity.ok().body(resultMap);
     }
 }
 

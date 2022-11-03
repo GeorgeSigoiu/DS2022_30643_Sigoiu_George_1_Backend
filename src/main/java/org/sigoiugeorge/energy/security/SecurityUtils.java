@@ -65,6 +65,7 @@ public class SecurityUtils {
         return new String[]{
                 "/get/devices-for-user/user-id={userId}",
                 "/get/user-username={username}",
+                "/get/consumption/for-date={date}/device-id={deviceId}",
         };
     }
 

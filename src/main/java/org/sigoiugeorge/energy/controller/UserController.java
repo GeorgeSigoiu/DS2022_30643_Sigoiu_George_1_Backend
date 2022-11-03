@@ -87,8 +87,6 @@ public class UserController {
     @PutMapping("/update/user-id={userId}")
     public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable Long userId) {
         User theUser = userService.get(userId);
-        System.out.println("update user: " + theUser);
-        System.out.println("with: " + user);
         String name = user.getName();
         if (name != null) {
             theUser.setName(name);
@@ -105,10 +103,8 @@ public class UserController {
         if (devices != null) {
             theUser.setMeteringDevices(devices);
         }
-        System.out.println("the user: " + theUser);
         User update = userService.update(theUser);
         return ResponseEntity.ok().body(update);
-//        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/token/refresh")
