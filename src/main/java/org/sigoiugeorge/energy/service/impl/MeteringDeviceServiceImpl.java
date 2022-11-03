@@ -31,7 +31,7 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
     }
 
     @Override
-    public void remove(MeteringDevice entity) {
+    public void remove(@NotNull MeteringDevice entity) {
         remove(entity.getId());
     }
 

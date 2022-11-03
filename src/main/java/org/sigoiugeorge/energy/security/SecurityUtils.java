@@ -61,7 +61,8 @@ public class SecurityUtils {
         };
     }
 
-    public static String[] commonAllowedGetLinks() {
+    @Contract(value = " -> new", pure = true)
+    public static String @NotNull [] commonAllowedGetLinks() {
         return new String[]{
                 "/get/devices-for-user/user-id={userId}",
                 "/get/user-username={username}",
@@ -69,7 +70,8 @@ public class SecurityUtils {
         };
     }
 
-    public static String[] commonAllowedPostLinks() {
+    @Contract(value = " -> new", pure = true)
+    public static String @NotNull [] commonAllowedPostLinks() {
         return new String[]{
                 "/update/credentials-id={credentialsId}",
         };

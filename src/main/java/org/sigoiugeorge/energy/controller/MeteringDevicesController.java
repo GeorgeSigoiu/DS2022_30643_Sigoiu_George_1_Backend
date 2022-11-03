@@ -69,7 +69,7 @@ public class MeteringDevicesController {
     }
 
     @PutMapping("/update/device-id={deviceId}")
-    public ResponseEntity<MeteringDevice> updateDevice(@RequestBody MeteringDevice device, @PathVariable Long deviceId) {
+    public ResponseEntity<MeteringDevice> updateDevice(@RequestBody @NotNull MeteringDevice device, @PathVariable Long deviceId) {
         MeteringDevice meteringDevice = deviceService.get(deviceId);
         String address = device.getAddress();
         if (address != null) {
@@ -99,7 +99,7 @@ public class MeteringDevicesController {
     }
 
     @GetMapping("/get/consumption/for-date={date}/device-id={deviceId}")
-    public ResponseEntity<Map<Integer, Integer>> getDailyConsumption(@PathVariable String date, @PathVariable Long deviceId) {
+    public ResponseEntity<Map<Integer, Integer>> getDailyConsumption(@PathVariable @NotNull String date, @PathVariable Long deviceId) {
         int endIndex = date.lastIndexOf(".");
         if (endIndex == -1) {
             endIndex = date.length();

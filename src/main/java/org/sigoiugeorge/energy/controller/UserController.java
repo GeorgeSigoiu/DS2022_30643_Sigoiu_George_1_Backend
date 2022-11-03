@@ -85,7 +85,7 @@ public class UserController {
     }
 
     @PutMapping("/update/user-id={userId}")
-    public ResponseEntity<User> updateUser(@RequestBody User user, @PathVariable Long userId) {
+    public ResponseEntity<User> updateUser(@RequestBody @NotNull User user, @PathVariable Long userId) {
         User theUser = userService.get(userId);
         String name = user.getName();
         if (name != null) {
