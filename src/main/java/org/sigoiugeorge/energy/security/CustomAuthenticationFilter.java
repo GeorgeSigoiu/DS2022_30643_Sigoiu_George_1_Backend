@@ -39,7 +39,9 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
     @Override
     protected void successfulAuthentication(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, FilterChain chain, @NotNull Authentication authentication) throws IOException, ServletException {
         User user = (User) authentication.getPrincipal();
-        List<String> collect = user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+        List<String> collect = user.getAuthorities()
+                .stream().map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
 
         String access_token = Jwt.createAccessToken(request, user.getUsername(), collect);
         String refresh_token = Jwt.createRefreshToken(request, user.getUsername());
