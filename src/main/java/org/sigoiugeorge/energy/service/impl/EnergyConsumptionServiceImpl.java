@@ -3,17 +3,23 @@ package org.sigoiugeorge.energy.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.sigoiugeorge.energy.dao.EnergyConsumptionRepo;
+import org.sigoiugeorge.energy.dao.MeteringDeviceRepo;
 import org.sigoiugeorge.energy.model.EnergyConsumption;
+import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.service.api.EnergyConsumptionService;
+import org.sigoiugeorge.energy.utils.EnergyConsumptionResponse;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
 
     private final EnergyConsumptionRepo repo;
+    private final MeteringDeviceRepo deviceRepo;
 
     @Override
     public EnergyConsumption create(@NotNull EnergyConsumption entity) {
@@ -49,5 +55,22 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
             throw new IllegalArgumentException("In order to update the energy consumption entity, it needs an id!");
         }
         return repo.save(entity);
+    }
+
+    @Override
+    public void addEnergyConsumption(EnergyConsumptionResponse consumer) {
+        long deviceId = consumer.getDeviceId();
+        Optional<MeteringDevice> deviceById = deviceRepo.findById(deviceId);
+        if (deviceById.isEmpty()) {
+            System.out.println("Device(id=" + deviceId + ") does not exist!");
+            return;
+        }
+        MeteringDevice device = deviceById.get();
+        EnergyConsumption energyConsumption = new EnergyConsumption();
+        energyConsumption.setMeteringDevice(device);
+        //todo from int to double
+        energyConsumption.setEnergyConsumption(consumer.getCurrentEnergyValue().intValue());
+        energyConsumption.setTimestamp(consumer.getTimestamp());
+        repo.save(energyConsumption);
     }
 }

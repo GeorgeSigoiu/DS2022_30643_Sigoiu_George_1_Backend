@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -108,22 +108,43 @@ public class MeteringDevicesController {
         LocalDateTime parsedDate = LocalDateTime.parse(date);
 
         Map<Integer, Integer> resultMap = new HashMap<>();
-        for (int i = 0; i <= 23; i++) {
+        Map<Integer, Integer> energyTodayMap = new HashMap<>();
+        Map<Integer, Integer> energyYesterdayMap = new HashMap<>();
+        for (int i = 0; i <= 24; i++) {
             resultMap.put(i, 0);
+            energyTodayMap.put(i, 0);
+            energyYesterdayMap.put(i, 0);
         }
 
         MeteringDevice device = deviceService.get(deviceId);
         List<EnergyConsumption> consumption = device.getEnergyConsumption();
-        List<EnergyConsumption> collect = consumption.stream().filter(el -> el.getTimestamp().toLocalDate().equals(parsedDate.toLocalDate())).toList();
+        List<EnergyConsumption> collectToday = new java.util.ArrayList<>(consumption.stream().filter(el -> el.getTimestamp().toLocalDate().equals(parsedDate.toLocalDate())).toList());
+        List<EnergyConsumption> collectYesterday = new java.util.ArrayList<>(consumption.stream().filter(el -> el.getTimestamp().toLocalDate().equals(parsedDate.toLocalDate().minusDays(1))).toList());
 
-        //todo 13:45 -> 13, but it should be 14
-        for (EnergyConsumption elem : collect) {
-            Integer value = elem.getEnergyConsumption();
-            LocalTime time = elem.getTimestamp().toLocalTime();
-            int hour = time.getHour();
-            Integer integer = resultMap.get(hour);
-            Integer newVal = integer + value;
-            resultMap.put(hour, newVal);
+        collectToday.sort(Comparator.comparing(EnergyConsumption::getTimestamp));
+        collectYesterday.sort(Comparator.comparing(EnergyConsumption::getTimestamp));
+
+        for (EnergyConsumption energyConsumption : collectToday) {
+            int hour = energyConsumption.getTimestamp().getHour() + 1;
+            energyTodayMap.put(hour, energyConsumption.getEnergyConsumption());
+        }
+        for (EnergyConsumption energyConsumption : collectYesterday) {
+            int hour = energyConsumption.getTimestamp().getHour() + 1;
+            energyYesterdayMap.put(hour, energyConsumption.getEnergyConsumption());
+        }
+        energyTodayMap.put(0, energyYesterdayMap.get(24));
+
+        for (int current = 0; current <= 24; current++) {
+            int before = current - 1;
+            if (before == -1) {
+                int dif = energyYesterdayMap.get(24) - energyYesterdayMap.get(23);
+                if (dif < 0) dif = 0;
+                resultMap.put(0, dif);
+                continue;
+            }
+            int dif = energyTodayMap.get(current) - energyTodayMap.get(before);
+            if (dif < 0) dif = 0;
+            resultMap.put(current, dif);
         }
 
         return ResponseEntity.ok().body(resultMap);
