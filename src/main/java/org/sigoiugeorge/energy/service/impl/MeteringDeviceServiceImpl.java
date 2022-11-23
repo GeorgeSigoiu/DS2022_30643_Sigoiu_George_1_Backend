@@ -118,4 +118,24 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
         return byAddress.isEmpty();
     }
 
+    @Override
+    public Boolean deviceExceededMaxConsumption(long deviceId) {
+        Optional<MeteringDevice> byId = repo.findById(deviceId);
+        if (byId.isEmpty()) {
+            throw new RuntimeException("Device with id=" + deviceId + " does not exist!");
+        }
+        MeteringDevice meteringDevice = byId.get();
+        List<EnergyConsumption> energyConsumption = meteringDevice.getEnergyConsumption();
+        if (energyConsumption == null) {
+            return false;
+        }
+        if (energyConsumption.size() < 1) {
+            return false;
+        }
+        energyConsumption.sort((a, b) -> a.getEnergyConsumption().compareTo(b.getEnergyConsumption()));
+        EnergyConsumption lastConsumption = energyConsumption.get(energyConsumption.size() - 1);
+        Integer currentValue = lastConsumption.getEnergyConsumption();
+        return currentValue > meteringDevice.getMaxHourlyEnergyConsumption();
+    }
+
 }

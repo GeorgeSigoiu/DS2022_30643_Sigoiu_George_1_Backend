@@ -2,6 +2,7 @@ package org.sigoiugeorge.energy.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.sigoiugeorge.energy.utils.MeteringDeviceShort;
 import org.sigoiugeorge.energy.model.EnergyConsumption;
 import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.model.User;
@@ -11,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -29,6 +27,25 @@ public class MeteringDevicesController {
     public ResponseEntity<List<MeteringDevice>> getAllDevices() {
         List<MeteringDevice> all = deviceService.getAll();
         return ResponseEntity.ok().body(all);
+    }
+
+    @GetMapping("/get/devices/consumption-exceeded-limit/username={username}")
+    public ResponseEntity<List<MeteringDeviceShort>> getAllDevicesWithConsumptionExceededTheLimit(@PathVariable String username) {
+        List<MeteringDevice> devices = userService.getUser(username).getMeteringDevices();
+        List<MeteringDeviceShort> devicesWithConsumption = new ArrayList<>();
+        for (MeteringDevice device : devices) {
+            List<EnergyConsumption> consumptions = device.getEnergyConsumption();
+            if (consumptions.size() < 1) {
+                continue;
+            }
+            consumptions.sort(Comparator.comparing(EnergyConsumption::getEnergyConsumption));
+            EnergyConsumption lastConsumption = consumptions.get(consumptions.size() - 1);
+            if (lastConsumption.getEnergyConsumption() > device.getMaxHourlyEnergyConsumption()) {
+                MeteringDeviceShort device1 = new MeteringDeviceShort(device.getAddress(), device.getMaxHourlyEnergyConsumption());
+                devicesWithConsumption.add(device1);
+            }
+        }
+        return ResponseEntity.ok().body(devicesWithConsumption);
     }
 
     @PutMapping("/add/device={deviceId}-to-user={userId}")
