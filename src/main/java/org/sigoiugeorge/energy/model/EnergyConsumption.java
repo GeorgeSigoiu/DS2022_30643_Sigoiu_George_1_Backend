@@ -28,7 +28,7 @@ public class EnergyConsumption {
     private Integer energyConsumption;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_metering_device")
     private MeteringDevice meteringDevice;
 

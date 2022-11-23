@@ -32,11 +32,11 @@ public class MeteringDevice {
     private Integer maxHourlyEnergyConsumption;
 
     @JsonIgnore
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_user")
     private User user;
 
-    @OneToMany(mappedBy = "meteringDevice")
+    @OneToMany(mappedBy = "meteringDevice", fetch = FetchType.EAGER)
     private List<EnergyConsumption> energyConsumption;
 
     public void addEnergyConsumption(EnergyConsumption en) {
