@@ -16,9 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -64,7 +62,7 @@ public class UserController {
     @GetMapping("/get/devices-for-user/user-id={userId}")
     public ResponseEntity<List<MeteringDevice>> getDevicesFromUser(@PathVariable Long userId) {
         User user = userService.get(userId);
-        List<MeteringDevice> devices = user.getMeteringDevices();
+        List<MeteringDevice> devices = new ArrayList<>(user.getMeteringDevices());
         return ResponseEntity.ok().body(devices);
     }
 
@@ -99,7 +97,7 @@ public class UserController {
         if (credentials != null) {
             theUser.setCredentials(credentials);
         }
-        List<MeteringDevice> devices = user.getMeteringDevices();
+        Set<MeteringDevice> devices = user.getMeteringDevices();
         if (devices != null) {
             theUser.setMeteringDevices(devices);
         }

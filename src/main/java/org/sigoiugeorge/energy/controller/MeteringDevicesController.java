@@ -2,12 +2,12 @@ package org.sigoiugeorge.energy.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.sigoiugeorge.energy.utils.MeteringDeviceShort;
 import org.sigoiugeorge.energy.model.EnergyConsumption;
 import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
 import org.sigoiugeorge.energy.service.api.UserService;
+import org.sigoiugeorge.energy.utils.MeteringDeviceShort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +31,11 @@ public class MeteringDevicesController {
 
     @GetMapping("/get/devices/consumption-exceeded-limit/username={username}")
     public ResponseEntity<List<MeteringDeviceShort>> getAllDevicesWithConsumptionExceededTheLimit(@PathVariable String username) {
-        List<MeteringDevice> devices = userService.getUser(username).getMeteringDevices();
+        Set<MeteringDevice> meteringDevices = userService.getUser(username).getMeteringDevices();
+        List<MeteringDevice> devices = new ArrayList<>(meteringDevices);
         List<MeteringDeviceShort> devicesWithConsumption = new ArrayList<>();
         for (MeteringDevice device : devices) {
-            List<EnergyConsumption> consumptions = device.getEnergyConsumption();
+            List<EnergyConsumption> consumptions = new ArrayList<>(device.getEnergyConsumption());
             if (consumptions.size() < 1) {
                 continue;
             }
@@ -134,7 +135,7 @@ public class MeteringDevicesController {
         }
 
         MeteringDevice device = deviceService.get(deviceId);
-        List<EnergyConsumption> consumption = device.getEnergyConsumption();
+        List<EnergyConsumption> consumption = new ArrayList<>(device.getEnergyConsumption());
         List<EnergyConsumption> collectToday = new java.util.ArrayList<>(consumption.stream().filter(el -> el.getTimestamp().toLocalDate().equals(parsedDate.toLocalDate())).toList());
         List<EnergyConsumption> collectYesterday = new java.util.ArrayList<>(consumption.stream().filter(el -> el.getTimestamp().toLocalDate().equals(parsedDate.toLocalDate().minusDays(1))).toList());
 

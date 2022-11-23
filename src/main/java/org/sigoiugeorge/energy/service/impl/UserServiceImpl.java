@@ -5,7 +5,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sigoiugeorge.energy.dao.UserRepo;
 import org.sigoiugeorge.energy.model.Credentials;
-import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.service.api.UserService;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,7 +43,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public User create(@NotNull User user) {
         if (user.getId() != null) {
-            throw new IllegalArgumentException("The user exists in database, he has an id!\n" + user.toString());
+            throw new IllegalArgumentException("The user exists in database, he has an id!\n" + user);
         }
         Credentials credentials = user.getCredentials();
         credentials.setPassword(passwordEncoder.encode(credentials.getPassword()));
@@ -64,6 +63,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User get(long id) {
+        if (repo.findById(id).isEmpty()) {
+            throw new RuntimeException("User with id=" + id + " does not exist!");
+        }
         return repo.findById(id).get();
     }
 
@@ -90,66 +92,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return null;
         }
         return first.get();
-    }
-
-    @Override
-    public void addMeteringDevice(long userId, MeteringDevice device) {
-        User user = repo.getReferenceById(userId);
-        addMeteringDevice(user, device);
-    }
-
-    @Override
-    public void addMeteringDevice(@NotNull User user, MeteringDevice device) {
-        user.addMeteringDevice(device);
-        create(user);
-    }
-
-    @Override
-    public void removeMeteringDevice(long userId, long deviceId) {
-        User user = get(userId);
-        List<MeteringDevice> meteringDevices = user.getMeteringDevices();
-        int index = -1;
-        boolean found = false;
-        for (MeteringDevice device : meteringDevices) {
-            index++;
-            if (device.getId() == deviceId) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            user.removeMeteringDevice(index);
-            create(user);
-        }
-    }
-
-    @Override
-    public void removeMeteringDevice(@NotNull User user, long deviceId) {
-        Long userId = user.getId();
-        removeMeteringDevice(userId, deviceId);
-    }
-
-    @Override
-    public void removeMeteringDevice(long userId, MeteringDevice device) {
-        User user = get(userId);
-        removeMeteringDevice(user, device);
-    }
-
-    @Override
-    public void removeMeteringDevice(@NotNull User user, MeteringDevice device) {
-        user.removeMeteringDevice(device);
-        create(user);
-    }
-
-    @Override
-    public List<MeteringDevice> getAllMeteringDevices(long userId) {
-        User user = get(userId);
-        return user.getMeteringDevices();
-    }
-
-    @Override
-    public List<MeteringDevice> getAllMeteringDevices(@NotNull User user) {
-        return user.getMeteringDevices();
     }
 
 }

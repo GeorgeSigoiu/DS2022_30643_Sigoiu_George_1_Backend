@@ -23,7 +23,7 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
     @Override
     public EnergyConsumption create(@NotNull EnergyConsumption entity) {
         if (entity.getId() != null) {
-            throw new IllegalArgumentException("The energy consumption entity exists in database, it has an id!\n" + entity.toString());
+            throw new IllegalArgumentException("The energy consumption entity exists in database, it has an id!\n" + entity);
         }
         return repo.save(entity);
     }
@@ -40,6 +40,9 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
 
     @Override
     public EnergyConsumption get(long id) {
+        if (repo.findById(id).isEmpty()) {
+            throw new RuntimeException("Consumption with id=" + id + " does not exist!");
+        }
         return repo.findById(id).get();
     }
 

@@ -25,12 +25,4 @@ public class Credentials {
     @Column(name = "password")
     private String password;
 
-    @Override
-    public String toString() {
-        return "Credentials{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
 }

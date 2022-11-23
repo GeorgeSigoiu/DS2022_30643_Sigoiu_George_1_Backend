@@ -1,6 +1,5 @@
 package org.sigoiugeorge.energy.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -8,8 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -35,33 +34,15 @@ public class User {
 
     @JsonProperty("devices")
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
-    private List<MeteringDevice> meteringDevices = new ArrayList<>();
+    private Set<MeteringDevice> meteringDevices = new HashSet<>();
 
     public void addMeteringDevice(MeteringDevice device) {
         meteringDevices.add(device);
     }
 
-    public List<MeteringDevice> getMeteringDevices() {
+    public Set<MeteringDevice> getMeteringDevices() {
         return meteringDevices;
     }
 
-    public void removeMeteringDevice(int index) {
-        meteringDevices.remove(index);
-    }
-
-    public void removeMeteringDevice(MeteringDevice device) {
-        meteringDevices.remove(device);
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", role='" + role + '\'' +
-                ", credentials=" + credentials +
-                ", meteringDevices=" + meteringDevices +
-                '}';
-    }
 }
 

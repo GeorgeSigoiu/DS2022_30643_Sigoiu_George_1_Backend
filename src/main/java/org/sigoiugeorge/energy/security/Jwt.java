@@ -20,9 +20,12 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 public class Jwt {
+    private static int SECOND = 1000;
+    private static int MINUTE = 60 * SECOND;
 
-    private static final int ACCESS_TOKEN_EXPIRATION_TIME_MIN = 10 * 60 * 1000;
-    private static final int REFRESH_TOKEN_EXPIRATION_TIME_MIN = 30 * 60 * 1000;
+    private static final int ACCESS_TOKEN_EXPIRATION_TIME_MIN = 10 * MINUTE;
+
+    private static final int REFRESH_TOKEN_EXPIRATION_TIME_MIN = 30 * MINUTE;
 
     @Contract(" -> new")
     public static @NotNull Algorithm getCreationTokenAlgorithm() {

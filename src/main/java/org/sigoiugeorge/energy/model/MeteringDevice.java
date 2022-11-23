@@ -5,10 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "metering_device")
@@ -37,33 +36,10 @@ public class MeteringDevice {
     private User user;
 
     @OneToMany(mappedBy = "meteringDevice", fetch = FetchType.EAGER)
-    private List<EnergyConsumption> energyConsumption;
+    private Set<EnergyConsumption> energyConsumption;
 
-    public void addEnergyConsumption(EnergyConsumption en) {
-        energyConsumption.add(en);
-    }
-
-    public List<EnergyConsumption> getEnergyConsumption() {
+    public Set<EnergyConsumption> getEnergyConsumption() {
         return energyConsumption;
     }
 
-    public void removeEnergyConsumption(int index) {
-        energyConsumption.remove(index);
-    }
-
-    public void removeEnergyConsumption(@NotNull EnergyConsumption en) {
-        energyConsumption.remove(en);
-    }
-
-//    @Override
-//    public String toString() {
-//        return "MeteringDevice{" +
-//                "id=" + id +
-//                ", description='" + description + '\'' +
-//                ", address='" + address + '\'' +
-//                ", maxHourlyEnergyConsumption=" + maxHourlyEnergyConsumption +
-//                ", user=" + user +
-//                ", energyConsumption=" + energyConsumption +
-//                '}';
-//    }
 }

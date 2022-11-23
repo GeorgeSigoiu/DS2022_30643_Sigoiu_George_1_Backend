@@ -32,13 +32,4 @@ public class EnergyConsumption {
     @JoinColumn(name = "id_metering_device")
     private MeteringDevice meteringDevice;
 
-    @Override
-    public String toString() {
-        return "EnergyConsumption{" +
-                "id=" + id +
-                ", timestamp=" + timestamp +
-                ", energyConsumption=" + energyConsumption +
-//                ", meteringDevice=" + meteringDevice +
-                '}';
-    }
 }

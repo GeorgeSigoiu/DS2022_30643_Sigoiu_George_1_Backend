@@ -1,13 +1,12 @@
 package org.sigoiugeorge.energy.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
+import com.rabbitmq.client.*;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
+import org.jetbrains.annotations.NotNull;
 import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.service.api.EnergyConsumptionService;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
@@ -40,30 +39,36 @@ public class MessageQueueReceiver {
         channel.queueDeclare(queueName, false, false, false, null);
         System.out.println(" [*] Waiting for messages.");
 
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            System.out.println(" [x] Received '" + message + "'");
-            ObjectMapper mapper = new ObjectMapper();
-            EnergyConsumptionResponse readObject = mapper
-                    .registerModule(new JavaTimeModule())
-                    .readerFor(EnergyConsumptionResponse.class)
-                    .readValue(message);
-            energyConsumptionService.addEnergyConsumption(readObject);
-            Boolean valueExceeded = deviceService.deviceExceededMaxConsumption(readObject.getDeviceId());
-            if (valueExceeded) {
-                JSONObject json = new JSONObject();
-                MeteringDevice device = deviceService.get(readObject.getDeviceId());
-                String address = device.getAddress();
-                Integer maxHourlyEnergyConsumption = device.getMaxHourlyEnergyConsumption();
-                json.put("address", address);
-                json.put("max_consumption", maxHourlyEnergyConsumption);
-                TextMessageDTO textMessageDTO = new TextMessageDTO(json.toString());
-                System.out.println("Message to send next: " + textMessageDTO);
-                ws.sendMessage(textMessageDTO);
-            }
-        };
+        DeliverCallback deliverCallback = (consumerTag, delivery) -> callBack(delivery);
         channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
         });
+    }
+
+    private void callBack(@NotNull Delivery delivery) throws JsonProcessingException {
+        String message = new String(delivery.getBody(), StandardCharsets.UTF_8);
+        System.out.println(" [x] Received '" + message + "'");
+        ObjectMapper mapper = new ObjectMapper();
+        EnergyConsumptionResponse readObject = mapper
+                .registerModule(new JavaTimeModule())
+                .readerFor(EnergyConsumptionResponse.class)
+                .readValue(message);
+        energyConsumptionService.addEnergyConsumption(readObject);
+        sendMessageIfConsumptionExceeded(readObject);
+    }
+
+    private void sendMessageIfConsumptionExceeded(@NotNull EnergyConsumptionResponse readObject) {
+        Boolean valueExceeded = deviceService.deviceExceededMaxConsumption(readObject.getDeviceId());
+        if (valueExceeded) {
+            JSONObject json = new JSONObject();
+            MeteringDevice device = deviceService.get(readObject.getDeviceId());
+            String address = device.getAddress();
+            Integer maxHourlyEnergyConsumption = device.getMaxHourlyEnergyConsumption();
+            json.put("address", address);
+            json.put("max_consumption", maxHourlyEnergyConsumption);
+            TextMessageDTO textMessageDTO = new TextMessageDTO(json.toString());
+            System.out.println("Message to send next: " + textMessageDTO);
+            ws.sendMessage(textMessageDTO);
+        }
     }
 
 

@@ -8,6 +8,7 @@ import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,9 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
 
     @Override
     public MeteringDevice get(long id) {
+        if (repo.findById(id).isEmpty()) {
+            throw new RuntimeException("Device with id=" + id + " does not exist!");
+        }
         return repo.findById(id).get();
     }
 
@@ -54,65 +58,6 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
     }
 
     @Override
-    public @NotNull List<EnergyConsumption> getAllEnergyConsumptions(@NotNull MeteringDevice device) {
-        return device.getEnergyConsumption();
-    }
-
-    @Override
-    public @NotNull List<EnergyConsumption> getAllEnergyConsumptions(long deviceId) {
-        MeteringDevice device = get(deviceId);
-        return getAllEnergyConsumptions(device);
-    }
-
-    @Override
-    public void addEnergyConsumption(@NotNull MeteringDevice device, @NotNull EnergyConsumption energyConsumption) {
-        device.addEnergyConsumption(energyConsumption);
-        create(device);
-    }
-
-    @Override
-    public void addEnergyConsumption(long deviceId, @NotNull EnergyConsumption energyConsumption) {
-        MeteringDevice device = get(deviceId);
-        addEnergyConsumption(device, energyConsumption);
-    }
-
-    @Override
-    public void removeEnergyConsumption(@NotNull MeteringDevice device, long energyId) {
-        List<EnergyConsumption> list = device.getEnergyConsumption();
-        int index = -1;
-        boolean found = false;
-        for (EnergyConsumption en : list) {
-            index++;
-            if (en.getId() == energyId) {
-                found = true;
-                break;
-            }
-        }
-        if (found) {
-            device.removeEnergyConsumption(index);
-            create(device);
-        }
-    }
-
-    @Override
-    public void removeEnergyConsumption(@NotNull MeteringDevice device, @NotNull EnergyConsumption energyConsumption) {
-        device.removeEnergyConsumption(energyConsumption);
-        create(device);
-    }
-
-    @Override
-    public void removeEnergyConsumption(long deviceId, long energyId) {
-        MeteringDevice device = get(deviceId);
-        removeEnergyConsumption(device, energyId);
-    }
-
-    @Override
-    public void removeEnergyConsumption(long deviceId, @NotNull EnergyConsumption energyConsumption) {
-        MeteringDevice device = get(deviceId);
-        removeEnergyConsumption(device, energyConsumption);
-    }
-
-    @Override
     public Boolean addressIsUnique(String address) {
         Optional<MeteringDevice> byAddress = repo.findByAddress(address);
         return byAddress.isEmpty();
@@ -125,7 +70,7 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
             throw new RuntimeException("Device with id=" + deviceId + " does not exist!");
         }
         MeteringDevice meteringDevice = byId.get();
-        List<EnergyConsumption> energyConsumption = meteringDevice.getEnergyConsumption();
+        List<EnergyConsumption> energyConsumption = new ArrayList<>(meteringDevice.getEnergyConsumption());
         if (energyConsumption == null) {
             return false;
         }
