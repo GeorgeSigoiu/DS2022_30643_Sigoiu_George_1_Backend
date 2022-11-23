@@ -10,7 +10,6 @@ import org.sigoiugeorge.energy.service.api.EnergyConsumptionService;
 import org.sigoiugeorge.energy.utils.EnergyConsumptionResponse;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +57,7 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
     }
 
     @Override
-    public void addEnergyConsumption(EnergyConsumptionResponse consumer) {
+    public void addEnergyConsumption(@NotNull EnergyConsumptionResponse consumer) {
         long deviceId = consumer.getDeviceId();
         Optional<MeteringDevice> deviceById = deviceRepo.findById(deviceId);
         if (deviceById.isEmpty()) {

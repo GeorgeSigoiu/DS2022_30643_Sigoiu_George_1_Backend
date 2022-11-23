@@ -6,7 +6,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-
 @Getter
 public class EnergyConsumptionResponse {
     private final long deviceId;
