@@ -33,6 +33,12 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         String username = request.getParameter("username");
         String password = request.getParameter("password");
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, password);
+
+        String origin = request.getHeader("origin");
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        response.setHeader("Origin", origin);
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+
         return authenticationManager.authenticate(authenticationToken);
     }
 
@@ -53,6 +59,12 @@ public class CustomAuthenticationFilter extends UsernamePasswordAuthenticationFi
         headers.put("access_token", access_token);
         headers.put("refresh_token", refresh_token);
         headers.put("username", user.getUsername());
+
+        String origin = request.getHeader("origin");
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        response.setHeader("Origin", origin);
+
         new ObjectMapper().writeValue(response.getOutputStream(), headers);
     }
 }

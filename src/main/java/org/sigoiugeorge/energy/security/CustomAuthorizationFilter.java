@@ -20,7 +20,11 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().equals("/login") || request.getServletPath().equals("/token/refresh")) {
+        String origin = request.getHeader("origin");
+        response.setHeader("Access-Control-Allow-Origin", origin);
+        response.setHeader("Origin", origin);
+        response.setHeader("Access-Control-Allow-Credentials", "true");
+        if (request.getServletPath().equals("/login") || request.getServletPath().equals("/token/refresh")|| request.getServletPath().startsWith("/ws-message")) {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader("Authorization");
