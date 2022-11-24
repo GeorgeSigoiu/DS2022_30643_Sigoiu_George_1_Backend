@@ -64,8 +64,7 @@ public class EnergyConsumptionServiceImpl implements EnergyConsumptionService {
         long deviceId = consumer.getDeviceId();
         Optional<MeteringDevice> deviceById = deviceRepo.findById(deviceId);
         if (deviceById.isEmpty()) {
-            System.out.println("Device(id=" + deviceId + ") does not exist!");
-            return;
+            throw new RuntimeException("Device(id=" + deviceId + ") does not exist!");
         }
         MeteringDevice device = deviceById.get();
         EnergyConsumption energyConsumption = new EnergyConsumption();

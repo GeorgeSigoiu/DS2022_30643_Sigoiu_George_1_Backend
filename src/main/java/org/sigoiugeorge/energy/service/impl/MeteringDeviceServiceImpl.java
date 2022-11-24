@@ -8,9 +8,12 @@ import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
@@ -64,23 +67,43 @@ public class MeteringDeviceServiceImpl implements MeteringDeviceService {
     }
 
     @Override
-    public Boolean deviceExceededMaxConsumption(long deviceId) {
+    public Boolean deviceExceededMaxHourlyConsumption(long deviceId, LocalDateTime timestamp) {
         Optional<MeteringDevice> byId = repo.findById(deviceId);
         if (byId.isEmpty()) {
             throw new RuntimeException("Device with id=" + deviceId + " does not exist!");
         }
         MeteringDevice meteringDevice = byId.get();
         List<EnergyConsumption> energyConsumption = new ArrayList<>(meteringDevice.getEnergyConsumption());
-        if (energyConsumption == null) {
-            return false;
-        }
         if (energyConsumption.size() < 1) {
             return false;
         }
-        energyConsumption.sort((a, b) -> a.getEnergyConsumption().compareTo(b.getEnergyConsumption()));
-        EnergyConsumption lastConsumption = energyConsumption.get(energyConsumption.size() - 1);
-        Integer currentValue = lastConsumption.getEnergyConsumption();
-        return currentValue > meteringDevice.getMaxHourlyEnergyConsumption();
+        LocalDate date1 = timestamp.toLocalDate();
+        int hour1 = timestamp.getHour() + 1;
+
+        LocalDateTime timestamp2 = timestamp.minusHours(1);
+        LocalDate date2 = timestamp2.toLocalDate();
+        int hour2 = timestamp2.getHour() + 1;
+
+        Optional<Integer> maxForTimestamp = energyConsumption.stream()
+                .filter(e -> e.getTimestamp().toLocalDate().equals(date1))
+                .filter(e -> e.getTimestamp().getHour() + 1 == hour1)
+                .map(EnergyConsumption::getEnergyConsumption)
+                .max(Integer::compareTo);
+        Optional<Integer> maxForTimestamp2 = energyConsumption.stream()
+                .filter(e -> e.getTimestamp().toLocalDate().equals(date2))
+                .filter(e -> e.getTimestamp().getHour() + 1 == hour2)
+                .map(EnergyConsumption::getEnergyConsumption)
+                .max(Integer::compareTo);
+
+        if (maxForTimestamp.isEmpty()) {
+            return false;
+        }
+        Integer integer1 = maxForTimestamp.get();
+        if (maxForTimestamp2.isEmpty()) {
+            return meteringDevice.getMaxHourlyEnergyConsumption() < integer1;
+        }
+        int diff = integer1 - maxForTimestamp2.get();
+        return diff > meteringDevice.getMaxHourlyEnergyConsumption();
     }
 
 }

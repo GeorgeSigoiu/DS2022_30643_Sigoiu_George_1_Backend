@@ -57,14 +57,16 @@ public class MessageQueueReceiver {
     }
 
     private void sendMessageIfConsumptionExceeded(@NotNull EnergyConsumptionResponse readObject) {
-        Boolean valueExceeded = deviceService.deviceExceededMaxConsumption(readObject.getDeviceId());
+        Boolean valueExceeded = deviceService.deviceExceededMaxHourlyConsumption(readObject.getDeviceId(), readObject.getTimestamp());
         if (valueExceeded) {
             JSONObject json = new JSONObject();
             MeteringDevice device = deviceService.get(readObject.getDeviceId());
             String address = device.getAddress();
             Integer maxHourlyEnergyConsumption = device.getMaxHourlyEnergyConsumption();
             json.put("address", address);
-            json.put("max_consumption", maxHourlyEnergyConsumption);
+            json.put("max_hourly_consumption", maxHourlyEnergyConsumption);
+            json.put("date", readObject.getTimestamp().toLocalDate());
+            json.put("time", (readObject.getTimestamp().getHour() + 1) + ":00");
             TextMessageDTO textMessageDTO = new TextMessageDTO(json.toString());
             System.out.println("Message to send next: " + textMessageDTO);
             ws.sendMessage(textMessageDTO);

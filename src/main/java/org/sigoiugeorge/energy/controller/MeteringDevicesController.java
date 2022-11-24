@@ -7,10 +7,12 @@ import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.model.User;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
 import org.sigoiugeorge.energy.service.api.UserService;
+import org.sigoiugeorge.energy.utils.EnergyConsumptionShort;
 import org.sigoiugeorge.energy.utils.MeteringDeviceShort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -32,21 +34,75 @@ public class MeteringDevicesController {
     @GetMapping("/get/devices/consumption-exceeded-limit/username={username}")
     public ResponseEntity<List<MeteringDeviceShort>> getAllDevicesWithConsumptionExceededTheLimit(@PathVariable String username) {
         Set<MeteringDevice> meteringDevices = userService.getUser(username).getMeteringDevices();
-        List<MeteringDevice> devices = new ArrayList<>(meteringDevices);
-        List<MeteringDeviceShort> devicesWithConsumption = new ArrayList<>();
+        ArrayList<MeteringDevice> devices = new ArrayList<>(meteringDevices);
+        LocalDateTime startDate = LocalDateTime.now().minusDays(10);
+        List<MeteringDeviceShort> list = new LinkedList<>();
         for (MeteringDevice device : devices) {
-            List<EnergyConsumption> consumptions = new ArrayList<>(device.getEnergyConsumption());
-            if (consumptions.size() < 1) {
-                continue;
-            }
-            consumptions.sort(Comparator.comparing(EnergyConsumption::getEnergyConsumption));
-            EnergyConsumption lastConsumption = consumptions.get(consumptions.size() - 1);
-            if (lastConsumption.getEnergyConsumption() > device.getMaxHourlyEnergyConsumption()) {
-                MeteringDeviceShort device1 = new MeteringDeviceShort(device.getAddress(), device.getMaxHourlyEnergyConsumption());
-                devicesWithConsumption.add(device1);
+            List<EnergyConsumptionShort> consumptionsForDevice = getConsumptionsForDevice(startDate, device);
+            List<EnergyConsumptionShort> energyConsumptionExceeded = filteredConsumptions(device, consumptionsForDevice);
+            for (EnergyConsumptionShort ecs : energyConsumptionExceeded) {
+                MeteringDeviceShort meteringDeviceShort = new MeteringDeviceShort(
+                        device.getAddress(),
+                        device.getMaxHourlyEnergyConsumption(),
+                        ecs.getDate(),
+                        ecs.getHour());
+                list.add(meteringDeviceShort);
             }
         }
-        return ResponseEntity.ok().body(devicesWithConsumption);
+
+        return ResponseEntity.ok().body(list);
+    }
+
+    /**
+     * Create a list of energy consumptions that exceeded the hourly limit
+     */
+    private @NotNull List<EnergyConsumptionShort> filteredConsumptions(@NotNull MeteringDevice device, @NotNull List<EnergyConsumptionShort> consumptionsForDevice) {
+        List<EnergyConsumptionShort> energyConsumptionExceeded = new LinkedList<>();
+        int lastConsumption = -1;
+        for (EnergyConsumptionShort consumptionShort : consumptionsForDevice) {
+            if (lastConsumption == -1) {
+                lastConsumption = consumptionShort.getValue();
+                continue;
+            }
+            int currentConsumption = consumptionShort.getValue();
+            int diff = currentConsumption - lastConsumption;
+            lastConsumption = currentConsumption;
+            if (diff > device.getMaxHourlyEnergyConsumption()) {
+                energyConsumptionExceeded.add(consumptionShort);
+            }
+        }
+        return energyConsumptionExceeded;
+    }
+
+    /**
+     * Create a list of objects that contains info grouped by date, hour and device id
+     *
+     * @param startDate energy consumption registered from startDate until now
+     * @param device    the device
+     */
+    private @NotNull List<EnergyConsumptionShort> getConsumptionsForDevice(LocalDateTime startDate, @NotNull MeteringDevice device) {
+        List<EnergyConsumption> energyConsumptions = device.getEnergyConsumption().stream().toList();
+        List<EnergyConsumption> filtered = energyConsumptions.stream().filter(e -> e.getTimestamp().isAfter(startDate)).toList();
+        List<EnergyConsumption> sorted = filtered.stream().sorted(Comparator.comparing(EnergyConsumption::getTimestamp)).toList();
+        List<EnergyConsumptionShort> list = new LinkedList<>();
+        for (EnergyConsumption energyConsumption : sorted) {
+            LocalDateTime timestamp1 = energyConsumption.getTimestamp();
+            LocalDate date1 = timestamp1.toLocalDate();
+            int hour1 = timestamp1.getHour() + 1;
+            Integer consumption = energyConsumption.getEnergyConsumption();
+            EnergyConsumptionShort obj = new EnergyConsumptionShort();
+            obj.setDeviceId(device.getId());
+            obj.setDate(date1);
+            obj.setHour(hour1);
+            obj.setValue(consumption);
+            if (list.contains(obj)) {
+                list.remove(obj);
+                list.add(obj);
+            } else {
+                list.add(obj);
+            }
+        }
+        return list;
     }
 
     @PutMapping("/add/device={deviceId}-to-user={userId}")
