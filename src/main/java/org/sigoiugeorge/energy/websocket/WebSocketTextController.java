@@ -7,10 +7,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
@@ -28,14 +25,22 @@ public class WebSocketTextController {
 
     @MessageMapping("/sendMessage")
     public void receiveMessage(@Payload TextMessageDTO textMessageDTO) {
-        System.out.println("CEVA 2");
+        System.out.println("received message");
         // receive message from client
     }
 
 
     @SendTo("/topic/message")
-    public TextMessageDTO broadcastMessage(@Payload TextMessageDTO textMessageDTO) {
-        System.out.println("CEVA 3");
+    public void broadcastMessage(@Payload TextMessageDTO textMessageDTO) {
+        System.out.println("broadcast message");
+        template.convertAndSend("/topic/message", textMessageDTO);
+    }
+
+    @MessageMapping("/private-message/{username}")
+    public TextMessageDTO privateMessage(@Payload TextMessageDTO textMessageDTO, @PathVariable String username) {
+        template.convertAndSendToUser(username, "/private", textMessageDTO);
+        System.out.println("private message to: " + username);
+        System.out.println("message: " + textMessageDTO);
         return textMessageDTO;
     }
 }
