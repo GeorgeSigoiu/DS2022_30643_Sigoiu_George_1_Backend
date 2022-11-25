@@ -7,6 +7,7 @@ import com.rabbitmq.client.*;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
+import org.sigoiugeorge.energy.model.EnergyConsumption;
 import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.service.api.EnergyConsumptionService;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 
 @Service
 @RequiredArgsConstructor
@@ -53,11 +55,12 @@ public class MessageQueueReceiver {
                 .readerFor(EnergyConsumptionResponse.class)
                 .readValue(message);
         energyConsumptionService.addEnergyConsumption(readObject);
-        sendMessageIfConsumptionExceeded(readObject);
+        sendMessage(readObject);
     }
 
-    private void sendMessageIfConsumptionExceeded(@NotNull EnergyConsumptionResponse readObject) {
+    private void sendMessage(@NotNull EnergyConsumptionResponse readObject) {
         Boolean valueExceeded = deviceService.deviceExceededMaxHourlyConsumption(readObject.getDeviceId(), readObject.getTimestamp());
+        String messageExceededConsumption = new JSONObject().toString();
         if (valueExceeded) {
             JSONObject json = new JSONObject();
             MeteringDevice device = deviceService.get(readObject.getDeviceId());
@@ -65,12 +68,36 @@ public class MessageQueueReceiver {
             Integer maxHourlyEnergyConsumption = device.getMaxHourlyEnergyConsumption();
             json.put("address", address);
             json.put("max_hourly_consumption", maxHourlyEnergyConsumption);
-            json.put("date", readObject.getTimestamp().toLocalDate());
-            json.put("time", (readObject.getTimestamp().getHour() + 1) + ":00");
-            TextMessageDTO textMessageDTO = new TextMessageDTO(json.toString());
-            System.out.println("Message to send next: " + textMessageDTO);
-            ws.sendMessage(textMessageDTO);
+            json.put("date", readObject.getTimestamp().toLocalDate().toString());
+            json.put("time", readObject.getTimestamp().getHour() + 1);
+            messageExceededConsumption = json.toString();
         }
+        JSONObject json = new JSONObject();
+        json.put("device_id", readObject.getDeviceId());
+        int value = readObject.getCurrentEnergyValue().intValue();
+        MeteringDevice meteringDevice = deviceService.get(readObject.getDeviceId());
+        LocalDate localDate = readObject.getTimestamp().minusHours(1).toLocalDate();
+        int hour = readObject.getTimestamp().getHour();
+        try {
+            Integer integer = meteringDevice.getEnergyConsumption()
+                    .stream()
+                    .filter(e -> e.getTimestamp().toLocalDate().equals(localDate))
+                    .filter(e -> e.getTimestamp().plusHours(1).getHour() == hour)
+                    .map(EnergyConsumption::getEnergyConsumption)
+                    .max(Integer::compareTo).get();
+            System.out.println(integer + "; " + value);
+            value -= integer;
+        } catch (Exception e) {
+            //just don't decrement the value
+        }
+        json.put("value", value);
+        json.put("date", readObject.getTimestamp().toLocalDate().toString());
+        json.put("hour", readObject.getTimestamp().getHour() + 1);
+        TextMessageDTO textMessageDTO = new TextMessageDTO(messageExceededConsumption, json.toString());
+        System.out.println("Message to send next: " + textMessageDTO);
+        String username = meteringDevice.getUser().getCredentials().getUsername();
+//        ws.broadcastMessage(textMessageDTO);
+        ws.privateMessage(textMessageDTO, username);
     }
 
 
