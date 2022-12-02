@@ -3,6 +3,6 @@ version: '3'
 services:
 
   backend-app:
-    image: backend_energy
+    image: containerregistrygeorgesigoiu30643.azurecr.io/backend_energy
     ports:
       - "7900:7900"
