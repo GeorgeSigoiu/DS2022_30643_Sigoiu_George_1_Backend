@@ -2,7 +2,7 @@ version: '3'
 
 services:
 
-  tomcat_db_api:
+  backend-app:
     image: backend_energy
     ports:
       - "7900:7900"
