@@ -55,7 +55,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.cors().configurationSource(request -> getCorsConfiguration());
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        http.authorizeRequests().antMatchers("/login", "/token/refresh", "/ws-message","/ws-message/*","/ws-message/**").permitAll();
+        http.authorizeRequests().antMatchers("/login", "/token/refresh", "/ws-message","/ws-message/*","/ws-message/**","/","/hello").permitAll();
 
         http.authorizeRequests().antMatchers(GET, SecurityUtils.adminAllowedGetLinks()).hasAnyAuthority("admin");
         http.authorizeRequests().antMatchers(POST, SecurityUtils.adminAllowedPostLinks()).hasAnyAuthority("admin");
