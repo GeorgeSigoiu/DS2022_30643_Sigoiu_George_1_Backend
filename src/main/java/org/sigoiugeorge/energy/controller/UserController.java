@@ -26,6 +26,17 @@ public class UserController {
     private final UserService userService;
     private final MeteringDeviceService deviceService;
 
+    @GetMapping("/")
+    public String home() {
+        return "Hello";
+    }
+
+    @GetMapping("/hello")
+    public String hello() {
+        return "hello";
+    }
+
+
     @PostMapping("/add/user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User createdUser = userService.create(user);
