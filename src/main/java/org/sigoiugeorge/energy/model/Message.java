@@ -31,7 +31,7 @@ public class Message {
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     @JoinColumn(name = "id_topic")
-    private Topic topic;
+    private Ticket ticket;
 
     @Column(name = "user_type")
     private String userType;

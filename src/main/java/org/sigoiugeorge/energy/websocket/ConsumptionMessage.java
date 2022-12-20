@@ -8,7 +8,7 @@ import lombok.ToString;
 @Getter
 @RequiredArgsConstructor
 @ToString
-public class TextMessageDTO {
+public class ConsumptionMessage {
 
     @JsonProperty("message_exceeded_consumption")
     private final String devicesExceededHourlyConsumption;

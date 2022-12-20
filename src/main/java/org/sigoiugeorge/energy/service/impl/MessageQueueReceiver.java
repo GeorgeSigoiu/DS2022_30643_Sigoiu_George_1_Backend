@@ -12,8 +12,8 @@ import org.sigoiugeorge.energy.model.MeteringDevice;
 import org.sigoiugeorge.energy.service.api.EnergyConsumptionService;
 import org.sigoiugeorge.energy.service.api.MeteringDeviceService;
 import org.sigoiugeorge.energy.utils.EnergyConsumptionResponse;
-import org.sigoiugeorge.energy.websocket.TextMessageDTO;
-import org.sigoiugeorge.energy.websocket.WebSocketTextController;
+import org.sigoiugeorge.energy.websocket.ConsumptionMessage;
+import org.sigoiugeorge.energy.websocket.WebSocketController;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,7 @@ public class MessageQueueReceiver {
 
     private final EnergyConsumptionService energyConsumptionService;
     private final MeteringDeviceService deviceService;
-    private final WebSocketTextController ws;
+    private final WebSocketController ws;
 
     public void start() throws Exception {
         ConnectionFactory factory = new ConnectionFactory();
@@ -85,7 +85,6 @@ public class MessageQueueReceiver {
                     .filter(e -> e.getTimestamp().plusHours(1).getHour() == hour)
                     .map(EnergyConsumption::getEnergyConsumption)
                     .max(Integer::compareTo).get();
-            System.out.println(integer + "; " + value);
             value -= integer;
         } catch (Exception e) {
             //just don't decrement the value
@@ -93,11 +92,10 @@ public class MessageQueueReceiver {
         json.put("value", value);
         json.put("date", readObject.getTimestamp().toLocalDate().toString());
         json.put("hour", readObject.getTimestamp().getHour() + 1);
-        TextMessageDTO textMessageDTO = new TextMessageDTO(messageExceededConsumption, json.toString());
-        System.out.println("Message to send next: " + textMessageDTO);
+        ConsumptionMessage consumptionMessage = new ConsumptionMessage(messageExceededConsumption, json.toString());
+//        System.out.println("Message to send next: " + consumptionMessage);
         String username = meteringDevice.getUser().getCredentials().getUsername();
-//        ws.broadcastMessage(textMessageDTO);
-        ws.privateMessage(textMessageDTO, username);
+        ws.privateMessage(consumptionMessage, username);
     }
 
 
