@@ -15,6 +15,9 @@ public class SecurityUtils {
                 "/get/devices/no-owner",
                 "/get/user-id={userId}",
                 "/verify/unique/username",
+                "/ws/get-tickets/admin/{username}",
+                "/ws/get-ticket/{id}",
+                "/ws/get-tickets-number/unassigned",
         };
     }
 
@@ -25,6 +28,8 @@ public class SecurityUtils {
                 "/add/user",
                 "/add/device",
                 "/verify/unique/device-address",
+                "/ws/send-message/to-client",
+                "/ws/assign-ticket-to-admin",
         };
     }
 
@@ -50,14 +55,15 @@ public class SecurityUtils {
     @Contract(value = " -> new", pure = true)
     public static String @NotNull [] clientAllowedGetLinks() {
         return new String[]{
-
+                "/ws/get-messages/client/{username}"
         };
     }
 
     @Contract(value = " -> new", pure = true)
     public static String @NotNull [] clientAllowedPostLinks() {
         return new String[]{
-
+                "/ws/send-message/to-admin",
+                "/ws/close-ticket",
         };
     }
 
@@ -75,6 +81,16 @@ public class SecurityUtils {
     public static String @NotNull [] commonAllowedPostLinks() {
         return new String[]{
                 "/update/credentials-id={credentialsId}",
+                "/ws/connected",
+                "/ws/disconnected",
+                "/ws/typing",
+        };
+    }
+
+    @Contract(value = " -> new", pure = true)
+    public static String @NotNull [] commonAllowedPutLinks() {
+        return new String[]{
+                "/ws/read-messages",
         };
     }
 }
