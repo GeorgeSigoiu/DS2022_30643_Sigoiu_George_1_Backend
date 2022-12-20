@@ -24,7 +24,7 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         response.setHeader("Access-Control-Allow-Origin", origin);
         response.setHeader("Origin", origin);
         response.setHeader("Access-Control-Allow-Credentials", "true");
-        if (request.getServletPath().equals("/login") || request.getServletPath().equals("/token/refresh")|| request.getServletPath().startsWith("/ws-message")) {
+        if (request.getServletPath().equals("/login") || request.getServletPath().equals("/token/refresh") || request.getServletPath().startsWith("/ws-message")) {
             filterChain.doFilter(request, response);
         } else {
             String authorizationHeader = request.getHeader("Authorization");
@@ -39,7 +39,8 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                     filterChain.doFilter(request, response);
                 } catch (Exception exception) {
-                    Jwt.handleExceptionInResponse(response, exception);
+//                    Jwt.handleExceptionInResponse(response, exception);
+                    throw new RuntimeException(exception);
                 }
             } else {
                 filterChain.doFilter(request, response);

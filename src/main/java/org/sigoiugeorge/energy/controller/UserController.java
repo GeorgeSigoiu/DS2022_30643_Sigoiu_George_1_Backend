@@ -137,7 +137,8 @@ public class UserController {
                 headers.put("username", username);
                 new ObjectMapper().writeValue(response.getOutputStream(), headers);
             } catch (Exception exception) {
-                Jwt.handleExceptionInResponse(response, exception);
+//                Jwt.handleExceptionInResponse(response, exception);
+                throw new RuntimeException(exception);
             }
         } else {
             throw new RuntimeException("Refresh token is missing!");
