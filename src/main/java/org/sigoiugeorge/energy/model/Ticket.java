@@ -33,6 +33,6 @@ public class Ticket {
     @Column(name = "created")
     private LocalDateTime created;
 
-    @OneToMany(mappedBy = "topic", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "ticket", fetch = FetchType.EAGER, cascade = CascadeType.REMOVE)
     private Set<Message> messages;
 }
